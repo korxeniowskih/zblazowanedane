@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16
+    container_name: kino
+    environment:
+      POSTGRES_DB: kino
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+  gui:
+    build: 
+      context: ./gui # Użyj kontekstu budowania jako katalog 'gui'
+      dockerfile: Dockerfile # Użyj Dockerfile z katalogu 'gui'
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8501:8501" 
+    # Zmieniona komenda, aby uruchamiała Home.py i była zgodna z Dockerfile
+    command: python -m streamlit run Home.py --server.port 8501 --server.enableCORS false --server.enableXsrfProtection false --server.address 0.0.0.0 
+    volumes:
+      - ./gui:/app
