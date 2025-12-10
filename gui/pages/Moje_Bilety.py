@@ -2,6 +2,7 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from psycopg2.extras import RealDictCursor
+from nav_pages import rezerwacje_page, bilety_page, login_page, register_page
 
 DB_CONFIG = {
     "dbname": "kino",
@@ -22,12 +23,12 @@ if "logged" in st.session_state and st.session_state["logged"]:
             del st.session_state["logged"]
             del st.session_state["user_id"]
             del st.session_state["user_name"]
-            st.switch_page("Login.py") # Przekierowanie do Login.py po wylogowaniu
+            st.switch_page(login_page) # Przekierowanie do Login.py po wylogowaniu
 
 # --- KONTROLA DOSTĘPU ---
 if "logged" not in st.session_state or not st.session_state["logged"]:
     st.error("Musisz się zalogować, aby zobaczyć tę stronę.")
-    st.page_link("pages/Login.py", label="Przejdź do strony Logowania")
+    st.page_link(login_page, label="Przejdź do strony Logowania")
     st.stop()
 
 st.title("🎫 Moje Bilety")
