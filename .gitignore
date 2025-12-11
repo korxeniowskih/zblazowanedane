@@ -1,0 +1,6 @@
+# Ignoruj wszystkie pliki .old
+*.old
+*.sql.old
+
+# Ignoruj folder "old 11.12"
+old 11.12/

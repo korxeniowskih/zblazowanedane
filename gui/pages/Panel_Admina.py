@@ -3,6 +3,7 @@ import psycopg2
 import pandas as pd
 from datetime import datetime, timedelta
 from psycopg2 import sql
+from nav_pages import rezerwacje_page, bilety_page, login_page, register_page
 
 # --- KONFIGURACJA BAZY DANYCH (ADMIN) ---
 # UWAGA: Używamy roli 'admin' z pełnymi uprawnieniami (Superuser)
@@ -67,7 +68,7 @@ if st.session_state["logged"]:
             del st.session_state["logged"]
             del st.session_state["user_id"]
             del st.session_state["user_name"]
-            st.switch_page("Login.py")
+            st.switch_page(login_page)
 
 st.title("🛡️ Panel Administracyjny")
 st.warning("Ta strona używa uprawnień superużytkownika (admin).")
@@ -118,6 +119,7 @@ if st.button("Zaplanuj Seans", key="schedule_btn"):
         st.success(f"✅ Seans '{selected_movie_title}' w Sali {selected_hall_name} został dodany.")
 
 
+
 st.markdown("---")
 # ---------------------------------------------
 # --- B. ZARZĄDZANIE UŻYTKOWNIKAMI I BILETAMI ---
@@ -134,6 +136,8 @@ customers_options = {f"{row['email']} ({row['first_name']} {row['last_name']})":
 
 selected_customer_email = st.selectbox("Wybierz klienta do zarządzania:", list(customers_options.keys()))
 customer_id_to_manage = customers_options.get(selected_customer_email)
+
+
 
 if customer_id_to_manage is not None:
     
@@ -198,3 +202,86 @@ if customer_id_to_manage is not None:
                 st.rerun()
             else:
                 st.error("Wystąpił błąd podczas usuwania powiązanych rekordów. Sprawdź logi bazy.")
+
+st.header("3. Dodaj Nowy Film")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    # --- Podstawowe dane filmu ---
+    title = st.text_input("Tytuł filmu:", max_chars=300)
+
+    # Pobierz listę gatunków z bazy (dostosuj nazwę tabeli/kolumn jeśli masz inną)
+    genres_df = fetch_data("SELECT id, name FROM movie_genres ORDER BY name")
+
+    if genres_df.empty:
+        st.warning("Brak zdefiniowanych gatunków filmów w bazie.")
+        genre_id = None
+        selected_genre_name = None
+    else:
+        genre_options = {row["name"]: row["id"] for _, row in genres_df.iterrows()}
+        selected_genre_name = st.selectbox("Gatunek:", list(genre_options.keys()))
+        genre_id = genre_options.get(selected_genre_name)
+
+    release_date = st.date_input(
+        "Data premiery:",
+        datetime.now().date()
+    )
+
+    runtime_min = st.number_input(
+        "Czas trwania (minuty):",
+        min_value=1,
+        value=120,
+        step=1
+    )
+
+with col2:
+    # --- Dodatkowe informacje ---
+    rating = st.text_input(
+        "Ocena / kategoria wiekowa (np. PG-13, 16+, 7.8/10):",
+        max_chars=20,
+        placeholder="np. 7.5/10"
+    )
+
+    description = st.text_area(
+        "Opis filmu:",
+        height=200,
+        placeholder="Krótki opis fabuły, obsady itp."
+    )
+
+    st.markdown("**Podgląd:**")
+    if title:
+        st.write(f"🎬 **{title}**")
+    if selected_genre_name:
+        st.write(f"📂 Gatunek: {selected_genre_name}")
+    if release_date:
+        st.write(f"📅 Premiera: {release_date}")
+    if runtime_min:
+        st.write(f"⏱ Czas trwania: {runtime_min} min")
+    if rating:
+        st.write(f"⭐ Ocena / rating: {rating}")
+
+
+# --- Zapis filmu do bazy ---
+if st.button("➕ Dodaj film", key="add_movie_btn"):
+    # prosta walidacja
+    if not title:
+        st.error("Tytuł filmu jest wymagany.")
+    elif genre_id is None:
+        st.error("Wybierz gatunek filmu (brak zdefiniowanych gatunków w bazie?).")
+    else:
+        query = """
+            INSERT INTO movies (title, movie_genre_id, release_date, runtime_min, rating, description)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        params = (
+            title,
+            genre_id,
+            release_date,    # pole DATE w bazie
+            int(runtime_min) if runtime_min else None,
+            rating if rating else None,
+            description if description else None
+        )
+
+        if execute_admin_query(query, params):
+            st.success(f"✅ Film '{title}' został dodany do bazy.")

@@ -3,6 +3,7 @@ import psycopg2
 import pandas as pd
 from psycopg2 import sql
 from datetime import datetime, timedelta
+from nav_pages import rezerwacje_page, bilety_page, login_page, register_page
 
 # --- Konfiguracja połączenia z bazą danych ---
 DB_CONFIG = {
@@ -106,14 +107,14 @@ if "logged" in st.session_state and st.session_state["logged"]:
             del st.session_state["logged"]
             del st.session_state["user_id"]
             del st.session_state["user_name"]
-            st.switch_page("Login.py") # Przekierowanie do Login.py po wylogowaniu
+            st.switch_page(login_page) # Przekierowanie do Login.py po wylogowaniu
 
 st.title("🎫 Zakup Biletu")
 
 # Kontrola dostępu
 if not st.session_state["logged"] or st.session_state["user_id"] is None:
     st.warning("Musisz być zalogowany, aby kupić bilet.")
-    st.page_link("Login.py", label="Przejdź do strony Logowanie")
+    st.page_link(login_page, label="Przejdź do strony Logowanie")
     st.stop()
 else:
     # Użycie ID klienta po zalogowaniu
@@ -194,7 +195,7 @@ else:
                             if execute_transaction(screening_id, seat_id, price_cents, customer_id):
                                 st.success("✅ Sukces! Bilet został zakupiony i wygenerowany. Zobacz go w sekcji 'Moje Bilety'.")
                                 # Przekierowanie do strony z biletami po zakupie
-                                st.switch_page("pages/Moje_Bilety.py")
+                                st.switch_page(bilety_page)
                             else:
                                 st.error("❌ Transakcja nie powiodła się.")
 

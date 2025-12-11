@@ -104,6 +104,7 @@ Oznacza to m.in.:
 Bezpieczeństwo systemu jest zatem **egzekwowane głównie w samej bazie danych**, poprzez role, uprawnienia, triggery i funkcje.
 
 ---
+<img width="990" height="781" alt="566357716_2365827797220703_8799561574848539238_n" src="https://github.com/user-attachments/assets/d5100d29-d634-470e-a47d-ed3076afb26e" />
 
 # ## 🧱 Warunki integralnościowe (Constraints)
 

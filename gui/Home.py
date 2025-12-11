@@ -1,26 +1,23 @@
 import streamlit as st
+from nav_pages import rezerwacje_page, bilety_page, login_page, register_page
 
-st.set_page_config(page_title="KinoApp", page_icon="🎬", layout="wide") # Dodano layout="wide" i ikonę
 
 st.title("🎬 KinoApp — Strona Główna")
 
-# Jeśli użytkownik jest zalogowany, witamy go
 if "logged" in st.session_state and st.session_state["logged"]:
     st.success(f"Witaj ponownie, **{st.session_state['user_name']}**!")
 
     st.write("Wybierz jedną z opcji poniżej:")
 
-    col_res, col_tick, col_logout = st.columns(3) # Nowy układ kolumn
+    col_res, col_tick, col_logout = st.columns(3)
 
     with col_res:
-        # Przejście do rezerwacji
         if st.button("🎟️ Rezerwacje filmów"):
-            st.switch_page("pages/Rezerwacje.py")
+            st.switch_page(rezerwacje_page)
     
     with col_tick:
-        # Przejście do Moje Bilety
         if st.button("🎫 Moje Bilety"):
-            st.switch_page("pages/Moje_bilety.py")
+            st.switch_page(bilety_page)
 
     with col_logout:
         if st.button("🚪 Wyloguj"):
@@ -34,8 +31,9 @@ else:
 
     with col1:
         if st.button("🔐 Logowanie"):
-            st.switch_page("pages/Login.py")
+            st.switch_page(login_page)
 
     with col2:
         if st.button("📝 Rejestracja"):
-            st.switch_page("pages/Register.py")
+            st.switch_page(register_page)
+

@@ -1,8 +1,8 @@
 import streamlit as st
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from nav_pages import rezerwacje_page
 
-# --- Konfiguracja bazy i Globalna Logika Sesji ---
 DB_CONFIG = {
     "dbname": "kino",
     "user": "web",
@@ -14,13 +14,9 @@ DB_CONFIG = {
 def get_db():
     return psycopg2.connect(**DB_CONFIG)
 
-# 1. Sprawdzenie, czy użytkownik jest już zalogowany
-if "logged" in st.session_state and st.session_state["logged"]:
-    # Jeśli zalogowany, przenieś na główną stronę aplikacji
-    st.switch_page("pages/Rezerwacje.py")
-
-# 2. Sidebar i Wylogowanie (wyświetla się, gdy użytkownik jest zalogowany, ale kod nie jest osiągany, bo nastąpi przekierowanie)
-# To jest potrzebne, by Streamlit zainicjował sesję na każdej stronie.
+# Jeśli już zalogowany, od razu przekieruj na Rezerwacje
+if st.session_state.get("logged", False):
+    st.switch_page(rezerwacje_page)
 
 st.title("🔐 Logowanie")
 
@@ -32,7 +28,7 @@ if st.button("Zaloguj"):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     cur.execute("""
-        SELECT id, first_name, last_name, password 
+        SELECT id, first_name, last_name, password
         FROM customers
         WHERE email = %s
     """, (email,))
@@ -48,10 +44,14 @@ if st.button("Zaloguj"):
     else:
         st.success(f"Witaj, {user['first_name']}!")
 
-        # zapis do sesji
-        st.session_state["logged"] = True
-        st.session_state["user_id"] = user["id"]
+        st.session_state["logged"]    = True
+        st.session_state["user_id"]   = user["id"]
         st.session_state["user_name"] = user["first_name"]
+        if email == "admin":   # tu wstaw swój adminowy mail
+            st.session_state["is_admin"] = True
+        else:
+            st.session_state["is_admin"] = False
 
-        # przejście do podstrony po zalogowaniu
-        st.switch_page("pages/Rezerwacje.py")
+        # przejście do Rezerwacji po zalogowaniu
+        st.switch_page(rezerwacje_page)
+

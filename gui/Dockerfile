@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Domyślna komenda uruchamiająca Streamlit
-CMD ["python", "-m", "streamlit", "run", "Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["python", "-m", "streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
