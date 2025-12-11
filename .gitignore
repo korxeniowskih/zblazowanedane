@@ -2,5 +2,6 @@
 *.old
 *.sql.old
 
-# Ignoruj folder "old 11.12"
+# Ignoruj folder "old 11.12" i "data"
+data/
 old 11.12/
